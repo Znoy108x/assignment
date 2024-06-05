@@ -1,9 +1,4 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
-
-## Getting Started
-
-First, run the development server:
-
+# Getting Started
 ```bash
 npm run dev
 # or
@@ -14,23 +9,73 @@ pnpm dev
 bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+# `.env` example
+```
+DATABASE_URL=
+NEXT_PUBLIC_BACKEND_BASE_URL=
+JWT_SECRET_KEY=
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+# What i did?
+## 1. User Registration
+```tsx
+Route: /register
+Method: POST
+```
+Request Body
+```tsx
+firstName
+lastName
+email
+password
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+`Input Validation`
 
-## Learn More
+- Input validation is performed on both the server and client sides using the zod library. 
 
-To learn more about Next.js, take a look at the following resources:
+The following checks are made:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- Ensure all required fields are present.
+- Validate user input (e.g., email format, password, etc.).
+- Check if a user with the provided email already exists in the database.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+`Registration Process`
 
-## Deploy on Vercel
+- If all required fields are present and user input is valid, check if a user with the provided email already exists in the database.
+- If no existing user is found, encrypt the password using bcrypt.
+- Store the user information (first name, last name, email, and encrypted password) in the database.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## 2. User Login
+```tsx
+Route: /login
+Method: POST
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+Request Body
+
+```tsx
+email
+password
+```
+
+`Input Validation`
+- Input validation is performed on both the server and client sides using the zod library. The following checks are made:
+- Ensure all required fields are present.
+- Validate user input (e.g., email format, password strength, etc.).
+- Check if a user with the provided email is present in the database.
+
+`Login Process`
+
+- If all required fields are present and user input is valid, check if a user with the provided email exists in the database.
+- If a user is found, compare the provided password with the stored encrypted password using bcrypt.compare.
+- If the passwords match, authenticate the user and generate a jwt token and store it as `HTTP only` cookie.
+
+## 3. Route Protection
+- Route protection is implemented using the middleware.ts file in Next.js.
+- Check if the request is related to an API route.
+- If it is an API route, apply the `xss-clean` and `express-mongo-sanitize` middleware to sanitize input from the client and prevent MongoDB operation injection.
+- Else Validate the JWT token using the jwtVerify function from the jose npm package.
+- If the token is not valid and the user wants to access the /login or /register route, allow access.
+- If the token is valid and the user wants to access the /login or /register route, deny access and redirect to the / (main) route.
+- For other routes, if the token is not valid, redirect to the /login route.
