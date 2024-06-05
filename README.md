@@ -37,6 +37,7 @@ password
 The following checks are made:
 
 - Ensure all required fields are present.
+- sanitizes the values using xss.
 - Validate user input (e.g., email format, password, etc.).
 - Check if a user with the provided email already exists in the database.
 
@@ -62,6 +63,7 @@ password
 `Input Validation`
 - Input validation is performed on both the server and client sides using the zod library. The following checks are made:
 - Ensure all required fields are present.
+- sanitises the fields using xss.
 - Validate user input (e.g., email format, password strength, etc.).
 - Check if a user with the provided email is present in the database.
 
@@ -73,8 +75,7 @@ password
 
 ## 3. Route Protection
 - Route protection is implemented using the middleware.ts file in Next.js.
-- Check if the request is related to an API route.
-- If it is an API route, apply the `xss-clean` and `express-mongo-sanitize` middleware to sanitize input from the client and prevent MongoDB operation injection.
+- Check if the request is related to an API routes.
 - Else Validate the JWT token using the jwtVerify function from the jose npm package.
 - If the token is not valid and the user wants to access the /login or /register route, allow access.
 - If the token is valid and the user wants to access the /login or /register route, deny access and redirect to the / (main) route.
