@@ -20,7 +20,6 @@
     "bcrypt": "^5.1.1",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
-    "express-mongo-sanitize": "^2.2.0",
     "jose": "^5.4.0",
     "jsonwebtoken": "^9.0.2",
     "lucide-react": "^0.383.0",
@@ -32,7 +31,7 @@
     "react-hot-toast": "^2.4.1",
     "tailwind-merge": "^2.3.0",
     "tailwindcss-animate": "^1.0.7",
-    "xss-clean": "^0.1.4",
+    "xss": "^1.0.15",
     "zod": "^3.23.8"
   },
   "devDependencies": {

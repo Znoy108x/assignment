@@ -2,10 +2,11 @@ import { NextRequest, NextResponse } from "next/server";
 import prismadb from "@/shared/lib/prismaDb";
 import bcrypt from "bcrypt";
 import { RegisterFormSchema } from "@/shared/schema/RegisterFormSchema";
+import xss from "xss";
 
 export async function POST(req: NextRequest) {
   try {
-    const { firstName, lastName, email, password } = await req.json();
+    let { firstName, lastName, email, password } = await req.json();
     if (!firstName) {
       return NextResponse.json(
         { error: "First Name is missing." },
@@ -24,6 +25,10 @@ export async function POST(req: NextRequest) {
         { status: 400 }
       );
     }
+    firstName = xss(firstName);
+    lastName = xss(lastName);
+    email = xss(email);
+    password = xss(password);
     const validation = RegisterFormSchema.safeParse({
       firstName,
       lastName,

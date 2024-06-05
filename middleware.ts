@@ -1,9 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { jwtVerify } from "jose";
 import { UserJWTPayload } from "./shared/types/JWT";
-//@ts-ignore
-import xssClean from "xss-clean";
-import expressMongoSanitize from "express-mongo-sanitize";
 
 export const getJwtSecretKey = () => {
   const secret = process.env.JWT_SECRET_KEY;
@@ -26,35 +23,30 @@ const verifyJWTToken = async (token: string) => {
 };
 
 export async function middleware(req: NextRequest) {
-  if (req.nextUrl.pathname.startsWith("/api")) {
-    xssClean();
-    expressMongoSanitize();
-  } else {
-    const token = req.cookies.get("token")?.value;
-    const verifyToken =
-      token &&
-      (await verifyJWTToken(token).catch((err) => {
-        console.log(err);
-      }));
-    // if user is not authenticared than allow him to got to login & register page
-    if (
-      (req.nextUrl.pathname.startsWith("/login") ||
-        req.nextUrl.pathname.startsWith("/register")) &&
-      !verifyToken
-    ) {
-      return;
-    }
-    const url = req.url;
-    //   if user is authenticated and he tries to navigate to /login and /register than redirect to home page
-    if ((url.includes("/login") || url.includes("/register")) && verifyToken) {
-      return NextResponse.redirect(new URL("/", url));
-    }
-    if (!verifyToken) {
-      return NextResponse.redirect(new URL("/login", url));
-    }
+  const token = req.cookies.get("token")?.value;
+  const verifyToken =
+    token &&
+    (await verifyJWTToken(token).catch((err) => {
+      console.log(err);
+    }));
+  // if user is not authenticared than allow him to got to login & register page
+  if (
+    (req.nextUrl.pathname.startsWith("/login") ||
+      req.nextUrl.pathname.startsWith("/register")) &&
+    !verifyToken
+  ) {
+    return;
+  }
+  const url = req.url;
+  //   if user is authenticated and he tries to navigate to /login and /register than redirect to home page
+  if ((url.includes("/login") || url.includes("/register")) && verifyToken) {
+    return NextResponse.redirect(new URL("/", url));
+  }
+  if (!verifyToken) {
+    return NextResponse.redirect(new URL("/login", url));
   }
 }
 
 export const config = {
-  matcher: ["/", "/login", "/register", "/api/:path*"],
+  matcher: ["/", "/login", "/register"],
 };

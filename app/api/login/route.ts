@@ -3,10 +3,11 @@ import prismadb from "@/shared/lib/prismaDb";
 import { LoginFormSchema } from "@/shared/schema/LoginFromSchema";
 import { NextRequest, NextResponse } from "next/server";
 import jwt from "jsonwebtoken";
+import xss from "xss";
 
 export async function POST(req: NextRequest) {
   try {
-    const { email, password } = await req.json();
+    let { email, password } = await req.json();
     if (!email) {
       return NextResponse.json({ error: "Email is missing." }, { status: 400 });
     } else if (!password) {
@@ -15,6 +16,8 @@ export async function POST(req: NextRequest) {
         { status: 400 }
       );
     }
+    email = xss(email);
+    password = xss(password);
     const validation = LoginFormSchema.safeParse({
       email,
       password,
